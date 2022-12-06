@@ -1,0 +1,86 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://scenes/scripts/Main.gd" type="Script" id=1]
+[ext_resource path="res://scenes/Player.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/Obstacle.tscn" type="PackedScene" id=3]
+[ext_resource path="res://art/light_mask.png" type="Texture" id=4]
+[ext_resource path="res://scenes/mob.tscn" type="PackedScene" id=5]
+[ext_resource path="res://scenes/HUD.tscn" type="PackedScene" id=6]
+
+[sub_resource type="Environment" id=1]
+
+[sub_resource type="Curve2D" id=2]
+_data = {
+"points": PoolVector2Array( 0, 0, 0, 0, 92, 68, 0, 0, 0, 0, 918, 59, 0, 0, 0, 0, 910, 681, 0, 0, 0, 0, 105, 662, 0, 0, 0, 0, 100, 94 )
+}
+
+[node name="Main" type="Node2D"]
+script = ExtResource( 1 )
+mob_scene = ExtResource( 5 )
+
+[node name="StartPosition" type="Position2D" parent="."]
+position = Vector2( 493, 357 )
+
+[node name="Floor" type="Polygon2D" parent="."]
+color = Color( 0.219608, 0.34902, 0.701961, 1 )
+polygon = PoolVector2Array( 0, 0, 1024, 3, 1024, 768, 0, 768 )
+
+[node name="Border" type="Polygon2D" parent="Floor"]
+position = Vector2( 0, 1 )
+color = Color( 0.243137, 0.231373, 0.396078, 1 )
+antialiased = true
+invert_enable = true
+invert_border = 800.0
+polygon = PoolVector2Array( 0, 0, 1024, 0, 1024, 768, 0, 768 )
+
+[node name="StaticBody2D" type="StaticBody2D" parent="Floor/Border"]
+collision_layer = 2
+collision_mask = 29
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Floor/Border/StaticBody2D"]
+polygon = PoolVector2Array( -100, -50, -100, 800, 1100, 800, 1100, -100, -105, -48, 0, 0, 1024, 0, 1024, 768, 4, 763, 0, 0 )
+
+[node name="Player" parent="." instance=ExtResource( 2 )]
+collision_mask = 23
+
+[node name="Obstacles" type="Node2D" parent="."]
+
+[node name="Obstacle" parent="Obstacles" instance=ExtResource( 3 )]
+position = Vector2( 318, 186 )
+
+[node name="Obstacle2" parent="Obstacles" instance=ExtResource( 3 )]
+position = Vector2( 770, 294 )
+
+[node name="Obstacle3" parent="Obstacles" instance=ExtResource( 3 )]
+position = Vector2( 388, 481 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 1 )
+
+[node name="Lights" type="Node2D" parent="WorldEnvironment"]
+
+[node name="Light2D" type="Light2D" parent="WorldEnvironment/Lights"]
+position = Vector2( 50, 1267 )
+texture = ExtResource( 4 )
+texture_scale = 3.0
+
+[node name="MobTimer" type="Timer" parent="."]
+wait_time = 1.5
+one_shot = true
+autostart = true
+
+[node name="MobPath" type="Path2D" parent="."]
+curve = SubResource( 2 )
+
+[node name="SpawnLocation" type="PathFollow2D" parent="MobPath"]
+position = Vector2( 92, 68 )
+rotation = -0.0108932
+
+[node name="HUD" parent="." instance=ExtResource( 6 )]
+
+[node name="WaveTimer" type="Timer" parent="."]
+wait_time = 60.0
+one_shot = true
+
+[connection signal="timeout" from="MobTimer" to="." method="_on_MobTimer_timeout"]
+[connection signal="timeout" from="WaveTimer" to="." method="_on_WaveTimer_timeout"]
